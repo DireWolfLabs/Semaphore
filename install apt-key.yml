@@ -1,0 +1,25 @@
+---
+- name: Install and Manage Apt Keyring
+  hosts: all
+  become: true  # Required for installing packages and managing keys
+
+  tasks:
+    - name: Ensure apt-transport-https is installed
+      apt:
+        name: apt-transport-https
+        state: present
+      
+    - name: Install gnupg (if not already installed)
+      apt:
+        name: gnupg
+        state: present
+
+    - name: Install apt-key (deprecated, but often still required for older repos)
+      apt:
+        name: apt-key
+        state: present
+      ignore_errors: true # Apt-key is deprecated and may not be available on newer systems.  Ignore if it fails to install.
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes

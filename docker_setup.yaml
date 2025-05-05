@@ -1,4 +1,7 @@
 ---
+collections:
+  - community.general
+
 - hosts: all
   become: true  # Required for sudo commands
 
@@ -51,3 +54,4 @@
           apt:
             update_cache: yes
       become: true # Ensure these tasks run with sudo
+

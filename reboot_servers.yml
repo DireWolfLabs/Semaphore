@@ -1,0 +1,11 @@
+---
+- hosts: all  # Target all hosts defined in your inventory
+  become: true # Use sudo/privilege escalation
+
+  tasks:
+    - name: Reboot the server
+      reboot:
+        msg: "Rebooting server for maintenance"
+        timeout: 300 # Optional: Set a timeout (in seconds) before considering reboot failed. Adjust as needed.
+        #pre_delay: 10  #Optional: Delay before reboot in seconds
+        #post_delay: 5   #Optional: Delay after reboot in seconds

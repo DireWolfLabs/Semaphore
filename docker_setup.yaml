@@ -2,10 +2,10 @@
 collections:
   - community.general
 
-hosts: all  # Changed from - hosts: all
-become: true  # Required for sudo commands
+- hosts: all  # Now part of a play
+  become: true  # Required for sudo commands
 
-tasks:
+  tasks:
     - name: Add Docker's official GPG key
       block:
         - name: Update apt package index

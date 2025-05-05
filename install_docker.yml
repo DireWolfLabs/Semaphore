@@ -26,16 +26,9 @@
         - docker-install
         - dependencies
 
-    - name: Add Docker GPG key
-      apt_key:
-        url: "https://download.docker.com/linux/ubuntu/gpg"
-        state: present
-      tags:
-        - docker-install
-
     - name: Add Docker APT repository
       apt_repository:
-        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        repo: "deb [arch=amd64] signed-by=https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
         state: present
       tags:
         - docker-install

@@ -16,6 +16,3 @@
         autoremove: yes
       when: apt_upgrade_result.changed # Only run if packages were upgraded
 
-    - name: Reboot if required after upgrade
-      reboot:
-      when: apt_upgrade_result.reboot_require

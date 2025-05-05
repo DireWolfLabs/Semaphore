@@ -1,11 +1,21 @@
 ---
-- hosts: all  # Target all hosts defined in your inventory
-  become: true # Use sudo/privilege escalation
-
+- hosts: all
+  become: true
   tasks:
-    - name: Reboot the server
-      reboot:
-        msg: "Rebooting server for maintenance"
-        timeout: 300 # Optional: Set a timeout (in seconds) before considering reboot failed. Adjust as needed.
-        #pre_delay: 10  #Optional: Delay before reboot in seconds
-        #post_delay: 5   #Optional: Delay after reboot in seconds
+    - name: Reboot the server using command module
+      command: /sbin/shutdown -r now
+      async: 300 # Set a timeout (in seconds) for the reboot process.
+      poll: 0   # Don't wait for immediate completion; let it run in the background.
+      register: reboot_result  # Register the result to check later
+
+    - name: Wait for servers to come back up (optional)
+      wait_for:
+        host: "{{ inventory_hostname }}"
+        port: 22 # Or your SSH port
+        timeout: 600 # Adjust as needed.  Longer than reboot time.
+      register: wait_result
+      until: wait_result is success
+      retries: 10
+      delay: 30
+
+

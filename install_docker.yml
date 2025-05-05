@@ -1,0 +1,81 @@
+---
+- name: Install Docker and Docker Compose on Ubuntu
+  hosts: all
+  become: true
+  vars:
+    docker_group: "docker" # Define the Docker group name
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: true
+      tags:
+        - docker-install
+        - dependencies
+
+    - name: Install required system packages
+      apt:
+        pkg:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - gnupg
+        state: present
+      tags:
+        - docker-install
+        - dependencies
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: "https://download.docker.com/linux/ubuntu/gpg"
+        state: present
+      tags:
+        - docker-install
+
+    - name: Add Docker APT repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+      tags:
+        - docker-install
+
+    - name: Install Docker packages
+      apt:
+        pkg:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin # Install docker compose as plugin
+        state: present
+        update_cache: true
+      tags:
+        - docker-install
+
+    - name: Create docker group
+      group:
+        name: "{{ docker_group }}"
+        state: present
+      tags:
+        - docker-install
+        - docker-config
+
+    - name: Add user to docker group
+      user:
+        name: "{{ ansible_user }}"  #  Ensure the user is in the docker group
+        group: "{{ docker_group }}"
+        append: true
+      tags:
+        - docker-install
+        - docker-config
+
+    - name: Start and enable Docker service
+      service:
+        name: docker
+        enabled: true
+        state: started
+      tags:
+        - docker-install
+        - docker-config
+
+   

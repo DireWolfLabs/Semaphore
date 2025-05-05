@@ -1,0 +1,21 @@
+---
+- hosts: all  # Target all hosts in your inventory
+  become: true  # Use privilege escalation (sudo)
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Upgrade all packages
+      apt:
+        upgrade: dist
+      register: apt_upgrade_result # Register the result for later use
+
+    - name: Autoremove unused dependencies
+      apt:
+        autoremove: yes
+      when: apt_upgrade_result.changed # Only run if packages were upgraded
+
+    - name: Reboot if required after upgrade
+      reboot:
+      when: apt_upgrade_result.reboot_require

@@ -11,16 +11,19 @@
           - lsb-release
         state: present
 
-    - name: Add Docker's official GPG key (if not already added)
-      apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
+    - name: Add GPG Key for Docker Repo (Modern Approach)
+      become: true
+      shell: |
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpgkey > /tmp/docker.gpg
+        apt-key add /tmp/docker.gpg
+      args:
+        creates: /etc/apt/trusted.gpg
 
-    - name: Add Docker repository
-      apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
-        state: present
-        update_cache: true
+    # Clean up temporary file (if used)
+    - name: Remove Temporary GPG Key File
+      file:
+        path: /tmp/docker.gpg
+        state: absent
 
     - name: Update apt cache (after adding repo)
       apt:

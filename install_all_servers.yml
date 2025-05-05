@@ -27,8 +27,3 @@
         name: cockpit
         state: present
         # Optional: Start and enable Cockpit service (if needed)
-    - name: Ensure Cockpit is running and enabled
-      systemd:
-        name: cockpit.socket
-        state: started
-        enabled: yes

@@ -1,8 +1,7 @@
 ---
-- name: Install Docker on Ubuntu 24.04
+- name: Install Docker on Ubuntu 24.04 (Noble Numbat)
   hosts: all
-  become: true # Required for privileged operations (installing packages)
-  
+  become: true
   tasks:
     - name: Update apt cache
       apt:
@@ -22,9 +21,9 @@
       shell: |
         curl -fsSL https://download.docker.com/linux/ubuntu/gpgkey | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
       args:
-        creates: /usr/share/keyrings/docker-archive-keyring.gpg # Check if the key already exists
+        creates: /usr/share/keyrings/docker-archive-keyring.gpg
 
-    - name: Add Docker repository
+    - name: Add Docker repository (Ubuntu 24.04)
       shell: |
         echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu jammy stable" > /etc/apt/sources.list.d/docker.list
       when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "24.04"
@@ -34,7 +33,7 @@
         update_cache: yes
       when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "24.04"
 
-    - name: Install Docker CE and containerd.io
+    - name: Install Docker CE, containerd.io, and docker-compose-plugin
       apt:
         name:
           - docker-ce
@@ -51,14 +50,14 @@
 
     - name: Add user to docker group (optional)
       user:
-        name: "{{ ansible_user }}" # Or specify a specific username
+        name: "{{ ansible_user }}"
         groups: docker
       when: ansible_user is defined and ansible_distribution == "Ubuntu" and ansible_distribution_version == "24.04"
 
     - name: Verify Docker installation (optional)
       shell: docker --version
       register: docker_version
-      changed_when: false # Don't report as changed if the version is already installed
+      changed_when: false
       failed_when: docker_version.rc != 0 and "docker command not found" not in docker_version.stderr
 
     - name: Print Docker version (optional)

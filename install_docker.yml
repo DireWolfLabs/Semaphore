@@ -1,75 +1,66 @@
 ---
-- name: Install Docker and Docker Compose on Ubuntu
+- name: Install Docker on Ubuntu 24.04
   hosts: all
-  become: true
-  vars:
-    docker_group: "docker" # Define the Docker group name
+  become: true # Required for privileged operations (installing packages)
 
   tasks:
     - name: Update apt cache
       apt:
-        update_cache: true
-      tags:
-        - docker-install
-        - dependencies
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "24.04"
 
-    - name: Install required system packages
+    - name: Install required dependencies
       apt:
-        pkg:
-          - apt-transport-https
+        name:
           - ca-certificates
           - curl
-          - software-properties-common
           - gnupg
         state: present
-      tags:
-        - docker-install
-        - dependencies
+      when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "24.04"
 
-    - name: Add Docker APT repository
-      apt_repository:
-        repo: "deb [arch=amd64] signed-by=https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
-        state: present
-      tags:
-        - docker-install
+    - name: Add Docker GPG key
+      shell: |
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpgkey | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+      args:
+        creates: /usr/share/keyrings/docker-archive-keyring.gpg # Check if the key already exists
 
-    - name: Install Docker packages
+    - name: Add Docker repository
+      shell: |
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu jammy stable" > /etc/apt/sources.list.d/docker.list
+      when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "24.04"
+
+    - name: Update apt cache again after adding the repository
       apt:
-        pkg:
+        update_cache: yes
+      when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "24.04"
+
+    - name: Install Docker CE and containerd.io
+      apt:
+        name:
           - docker-ce
-          - docker-ce-cli
+          - docker-compose-plugin
           - containerd.io
-          - docker-compose-plugin # Install docker compose as plugin
         state: present
-        update_cache: true
-      tags:
-        - docker-install
+      when: ansible_distribution == "Ubuntu" and ansible_distribution_version == "24.04"
 
-    - name: Create docker group
-      group:
-        name: "{{ docker_group }}"
-        state: present
-      tags:
-        - docker-install
-        - docker-config
-
-    - name: Add user to docker group
-      user:
-        name: "{{ ansible_user }}"  #  Ensure the user is in the docker group
-        group: "{{ docker_group }}"
-        append: true
-      tags:
-        - docker-install
-        - docker-config
-
-    - name: Start and enable Docker service
-      service:
+    - name: Enable Docker service
+      systemd:
         name: docker
-        enabled: true
         state: started
-      tags:
-        - docker-install
-        - docker-config
+        enabled: yes
 
+    - name: Add user to docker group (optional)
+      user:
+        name: "{{ ansible_user }}" # Or specify a specific username
+        groups: docker
+      when: ansible_user is defined and ansible_distribution == "Ubuntu" and ansible_distribution_version == "24.04"
 
-   
+    - name: Verify Docker installation (optional)
+      shell: docker --version
+      register: docker_version
+      changed_when: false # Don't report as changed if the version is already installed
+      failed_when: docker_version.rc != 0 and "docker command not found" not in docker_version.stderr
+
+    - name: Print Docker version (optional)
+      debug:
+        msg: "Docker version: {{ docker_version.stdout }}"

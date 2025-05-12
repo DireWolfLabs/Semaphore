@@ -7,7 +7,5 @@
     - name: Reboot the server
       reboot:
         msg: "Reboot initiated by Ansible"
-        connect_timeout: 5
-        reboot_timeout: 300 # Allow up to 5 minutes for reboot
-        pre_delay: 0       # No delay before rebooting
+
 

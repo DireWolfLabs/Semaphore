@@ -1,7 +1,7 @@
 ---
 - hosts: all  # Target hosts - change if needed (e.g., webservers)
   become: true # Required for installing packages
-  ansible_python_interpreter: /usr/bin/python3.12  # Use the detected path
+  
   tasks:
     - name: Update apt cache
       apt:

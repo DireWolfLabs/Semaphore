@@ -1,7 +1,7 @@
 ---
 - hosts: all  # Target all hosts in your inventory
   become: true  # Use privilege escalation (sudo)
-  ansible_python_interpreter: /usr/bin/python3.12  # Use the detected path
+  
   tasks:
     - name: Update apt cache
       apt:

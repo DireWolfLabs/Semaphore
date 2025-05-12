@@ -2,7 +2,7 @@
 - name: Install Docker on Ubuntu 24.04
   hosts: all
   become: true # Required for privileged operations (installing packages)
-  ansible_python_interpreter: /usr/bin/python3.12  # Use the detected path
+  
   tasks:
     - name: Update apt cache
       apt:

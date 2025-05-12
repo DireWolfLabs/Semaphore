@@ -1,0 +1,28 @@
+---
+- name: Add user 'scott' to Docker group and create Docker directory
+  hosts: all
+  become: true
+  tasks:
+    - name: Ensure the docker group exists
+      group:
+        name: docker
+        state: present
+
+    - name: Add user 'scott' to the docker group
+      user:
+        name: scott
+        groups: docker
+        append: yes
+
+    - name: Create Docker directory in Scott's home directory
+      file:
+        path: /home/scott/docker
+        state: directory
+        owner: scott
+        group: scott
+        mode: '0755'  # Read, write, execute for owner; read and execute for group and others
+
+    - name: Reload user to apply group changes (important!)
+      command: newgrp docker
+      become: false # Run as the current user (scott)
+      changed_when: false # Don't report a change if it doesn't actually change anything.

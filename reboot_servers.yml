@@ -2,7 +2,7 @@
 - name: Reboot Ubuntu 24.04 Servers
   hosts: all
   become: true # Required for rebooting
-
+  ansible_python_interpreter: /usr/bin/python3.12  # Use the detected path
   tasks:
     - name: Reboot the server
       reboot:

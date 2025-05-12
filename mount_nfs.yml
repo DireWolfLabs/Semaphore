@@ -1,0 +1,26 @@
+---
+- hosts: all  # Or specify target hosts/groups
+  become: true # Required for mounting
+
+  tasks:
+    - name: Ensure NFS client package is installed (Debian/Ubuntu)
+      apt:
+        name: nfs-common
+        state: present
+      when: ansible_os_family == "Debian" or ansible_os_family == "Ubuntu"
+
+    - name: Mount NFS share
+      mount:
+        path: /home/scott/docker
+        src: "10.10.0.15:/mnt/Proxmox-Storage/docker"
+        fstype: nfs
+        opts: defaults,nofail  # 'defaults' is a good starting point; nofail prevents boot issues if the share isn't available
+        state: mounted
+
+    - name: Add entry to /etc/fstab for persistent mount
+      lineinfile:
+        path: /etc/fstab
+        line: "10.10.0.15:/mnt/Proxmox-Storage/docker  /home/scott/docker  nfs defaults,nofail 0 0"
+        state: present
+        create: true # Create the file if it doesn't exist
+

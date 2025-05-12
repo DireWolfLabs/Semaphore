@@ -1,21 +1,13 @@
 ---
-- hosts: all
-  become: true
+- name: Reboot Ubuntu 24.04 Servers
+  hosts: all
+  become: true # Required for rebooting
+
   tasks:
-    - name: Reboot the server using command module
-      command: /sbin/shutdown -r now
-      async: 300 # Set a timeout (in seconds) for the reboot process.
-      poll: 0   # Don't wait for immediate completion; let it run in the background.
-      register: reboot_result  # Register the result to check later
-
-    - name: Wait for servers to come back up (optional)
-      wait_for:
-        host: "{{ inventory_hostname }}"
-        port: 22 # Or your SSH port
-        timeout: 600 # Adjust as needed.  Longer than reboot time.
-      register: wait_result
-      until: wait_result is success
-      retries: 10
-      delay: 30
-
+    - name: Reboot the server
+      reboot:
+        msg: "Reboot initiated by Ansible"
+        connect_timeout: 5
+        reboot_timeout: 300 # Allow up to 5 minutes for reboot
+        pre_delay: 0       # No delay before rebooting
 

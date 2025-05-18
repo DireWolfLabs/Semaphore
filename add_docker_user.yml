@@ -14,12 +14,6 @@
         groups: docker
         append: yes
 
-    - name: Create Docker directory in Scott's home directory
-      file:
-        path: /home/scott/docker
-        state: directory
-        owner: scott
-        group: scott
-        mode: '0755'  # Read, write, execute for owner; read and execute for group and others
+
 
 

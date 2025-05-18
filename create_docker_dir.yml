@@ -1,0 +1,12 @@
+---
+- hosts: all
+  become: true  # Required for creating directories as root or another user
+  tasks:
+    - name: Create the docker directory
+      file:
+        path: /home/scott/docker
+        state: directory
+        owner: scott
+        group: scott
+        mode: '0755' # Read, write, execute for owner; read and execute for group and others
+
